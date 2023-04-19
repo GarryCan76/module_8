@@ -12,6 +12,7 @@
         <a href="#">Account</a>
         <a href="#">Login</a>
         <a href="#">Register</a>
+        <a href="admin/admin.php">Admin</a>
     </div>
 
 </header>
@@ -117,7 +118,7 @@
                 <h3>' . $v["name"] . '</h3>
                 <div class="info_row">
                     <div>
-                        <p>' . $v["ship_type"] . ' Ship</p>
+                        <p>' . $v["ship_type"] . ' Class</p>
                         <p>Price $' . $v["price"] . ',-</p>
                         <p>In stock</p>
                     </div>
