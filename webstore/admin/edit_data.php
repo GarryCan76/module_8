@@ -23,18 +23,38 @@
     </div>
     <div></div>
 </div>
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "module_8";
+
+
+try {
+$list=array();
+$conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+$stmt = $conn->prepare("SELECT `id`, `name`, `price`, `icon`, `ship_type`, `stock`, `discription` FROM `ships` WHERE id=".$_GET['productId'] ."");
+$stmt->execute();
+foreach(new RecursiveArrayIterator($stmt->fetchAll()) as $k=>$v) {
+}
+$pstmt = $conn->prepare("SELECT `id`, `product_id`, `url` FROM `photos` WHERE product_id=".$_GET['productId'] ."");
+$pstmt->execute();
+$_GET["shipType"] = $v['ship_type'];
+
+
+?>
 <div id="main_div">
     <a href="edit.php">or edit products</a>
     <div class="product">
         <a href="#">
             <div class="product_item">
-                <img id="icon" src="../imgs/noimg.png">
-                <h3 id="productName">Name</h3>
+                <img id="icon" src="../imgs/<?php echo $v['icon'] ?>">
+                <h3 id="productName"><?php echo $v['name'] ?></h3>
                 <div class="info_row">
                     <div>
-                        <p id="shipType">Ship type</p>
-                        <p id="price">Price</p>
-                        <p id="stock">In stock</p>
+                        <p id="shipType"><?php echo $v['ship_type'] ?></p>
+                        <p id="price">price $<?php echo $v['price'] ?>,-</p>
+                        <p id="stock">stock <?php echo $v['stock'] ?></p>
                     </div>
                     <div class="add_cart">
                         <p>Add to cart</p>
@@ -43,17 +63,18 @@
                 </div>
             </div>
         </a>
-        <form action="admin.php" method="get">
+        <form action="edit_data.php?productId=<?php echo $v['id'] ?>" method="get">
             <div id="productEditor">
                 <div id="productFillIn">
-                    <input type="text" name="productName" placeholder="Product name" oninput="updatePreview()" required>
-                    <input type="number" name="price" placeholder="Price" oninput="updatePreview()" required>
-                    <input type="text" name="icon" placeholder="Icon" oninput="updatePreview()" value="noimg.png" required>
-                    <input type="number" name="stock" placeholder="Stock" required oninput="updatePreview()">
+                    <input type="hidden" name="productId" value="<?php echo $v['id'] ?>">
+                    <input type="text" name="productName" value="<?php echo $v['name'] ?>" placeholder="Product name" oninput="updatePreview()" required>
+                    <input type="number" name="price" placeholder="Price" value="<?php echo $v['price'] ?>" oninput="updatePreview()" required>
+                    <input type="text" name="icon" placeholder="Icon"  oninput="updatePreview()" value="<?php echo $v['icon'] ?>" required>
+                    <input type="number" name="stock" placeholder="Stock" value="<?php echo $v['stock'] ?>" required oninput="updatePreview()">
                 </div>
                 <div id="shipTypeSelect">
                     <p>Ship Class</p>
-                    <div><input type="radio" id="Fighters" name="shipType" value="Fighter" checked="checked" oninput="updateShipType(0)">
+                    <div><input type="radio" id="Fighters" name="shipType" value="Fighter" oninput="updateShipType(0)">
                         <label for="Fighters">Fighters</label></div>
                     <div><input type="radio" id="Frigates" name="shipType" value="Frigate" oninput="updateShipType(1)">
                         <label for="Frigates">Frigates</label></div>
@@ -65,7 +86,7 @@
                         <label for="Capitals">Capitals</label></div>
                 </div>
             </div>
-            <input type="text" id="description" name="description" placeholder="Description" oninput="updatePreview()" size="25" required>
+            <input type="text" id="description" name="description" value="<?php echo $v['discription'] ?>" placeholder="Description" oninput="updatePreview()" size="25" required>
             <input type="submit" name="submit" oninput="updatePreview()">
         </form>
     </div>
@@ -81,6 +102,12 @@
         }
     </script>
 </div>
+    <?php
+} catch(PDOException $e) {
+}
+
+$conn = null;
+?>
 <?php
 $servername = "localhost";
 $username = "root";
@@ -93,6 +120,9 @@ try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
     if(isset($_GET['submit']))
     {
+        ?>
+
+<?php
         $productName = $_GET["productName"];
         $price = $_GET["price"];
         $description = $_GET["description"];
@@ -100,11 +130,12 @@ try {
         $shipType = $_GET["shipType"];
         $stock = $_GET["stock"];
         echo '<script>console.log("oke")</script>';
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $sql = "INSERT INTO `ships`(`id`, `name`, `price`, `discription`, `icon`, `ship_type`, stock) VALUES ('','$productName','$price','$description','$icon','$shipType','$stock')";
-        $conn->exec($sql);
-    }
+        $sql = "UPDATE ships SET name='$productName' WHERE id=".$_GET['productId'] ."";
+        $stmt = $conn->prepare($sql);
 
+        // execute the query
+        $stmt->execute();
+    }
 } catch(PDOException $e) {
     echo $sql . "<br>" . $e->getMessage();
 }
